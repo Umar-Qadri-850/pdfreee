@@ -1,0 +1,2 @@
+# AdSense ads.txt
+# Replace with actual Google AdSense publisher record (e.g. google.com, pub-XXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0)

@@ -1,0 +1,53 @@
+{
+  "name": "pdfreee",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Pdfreee — a free-first, privacy-conscious online PDF toolkit that runs in your browser.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run typecheck && vite build && npm run seo:generate",
+    "seo:generate": "tsx scripts/generate-seo.ts",
+    "fixture": "tsx scripts/make-fixture.ts",
+    "verify:worker": "node scripts/check-worker-mime.mjs",
+    "verify:deploy": "node scripts/check-deployment.mjs",
+    "preview": "vite preview --port 4173",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "lucide-react": "^1.55.0",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.4.299",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-markdown": "^10.1.0",
+    "react-router": "^7.18.4",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^22.18.12",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^5.2.0",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "jsdom": "^29.1.1",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.47.2",
+    "vite": "^7.3.7",
+    "vitest": "^5.0.3"
+  }
+}

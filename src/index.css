@@ -1,0 +1,202 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  --font-display: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+
+  --color-paper: #fbfaf7;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f5f2ec;
+  --color-ink: #1b1815;
+  --color-ink-soft: #4f4a44;
+  --color-ink-muted: #857d73;
+  --color-line: #eae4db;
+  --color-line-strong: #d9d1c5;
+  --color-accent: #e5484d;
+  --color-accent-strong: #c62b30;
+  --color-accent-soft: #fdecec;
+  --color-success: #1f7a5c;
+  --color-success-soft: #e7f5ef;
+  --color-warn: #a2620c;
+  --color-warn-soft: #fbf1dd;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  --shadow-xs: 0 1px 2px rgba(27, 24, 21, 0.05);
+  --shadow-sm: 0 1px 3px rgba(27, 24, 21, 0.06), 0 1px 2px rgba(27, 24, 21, 0.04);
+  --shadow-md: 0 8px 24px -12px rgba(27, 24, 21, 0.18);
+  --shadow-lg: 0 24px 48px -24px rgba(27, 24, 21, 0.28);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.011em;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+    color: var(--color-accent-strong);
+  }
+}
+
+@layer utilities {
+  .container-page {
+    width: 100%;
+    max-width: 76rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .container-page {
+      padding-inline: 2rem;
+    }
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Blog / long-form typography without a plugin dependency. */
+.prose-pdfreee {
+  color: var(--color-ink-soft);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+.prose-pdfreee h2 {
+  color: var(--color-ink);
+  font-size: 1.6rem;
+  line-height: 1.3;
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+.prose-pdfreee h3 {
+  color: var(--color-ink);
+  font-size: 1.25rem;
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+.prose-pdfreee p,
+.prose-pdfreee ul,
+.prose-pdfreee ol {
+  margin-bottom: 1.15rem;
+}
+.prose-pdfreee ul,
+.prose-pdfreee ol {
+  padding-left: 1.35rem;
+}
+.prose-pdfreee ul {
+  list-style: disc;
+}
+.prose-pdfreee ol {
+  list-style: decimal;
+}
+.prose-pdfreee li {
+  margin-bottom: 0.4rem;
+}
+.prose-pdfreee a {
+  color: var(--color-accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prose-pdfreee strong {
+  color: var(--color-ink);
+}
+.prose-pdfreee code {
+  background: var(--color-surface-sunken);
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.3rem;
+  font-size: 0.9em;
+}
+.prose-pdfreee pre {
+  background: #1b1815;
+  color: #f5f2ec;
+  padding: 1rem 1.15rem;
+  border-radius: 0.6rem;
+  overflow-x: auto;
+  margin-bottom: 1.25rem;
+}
+.prose-pdfreee pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+.prose-pdfreee blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 1rem;
+  color: var(--color-ink-muted);
+  font-style: italic;
+}
+.prose-pdfreee table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.25rem;
+  font-size: 0.95rem;
+}
+.prose-pdfreee th,
+.prose-pdfreee td {
+  border: 1px solid var(--color-line);
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

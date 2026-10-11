@@ -1,0 +1,11 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        # Set this to your real public origin before going live.
+        VITE_SITE_URL: ${VITE_SITE_URL:-http://localhost:8080}
+    image: pdfreee:latest
+    ports:
+      - "8080:80"
+    restart: unless-stopped

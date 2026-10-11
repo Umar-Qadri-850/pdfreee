@@ -1,0 +1,37 @@
+import { cn } from '@/lib/utils'
+
+export function LogoMark({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      role="img"
+      aria-label="Pdfreee"
+      className={cn('h-8 w-8', className)}
+    >
+      <rect x="1" y="1" width="30" height="30" rx="7" fill="#1b1815" />
+      <path d="M10 7.5h8.2L25 14.3v10.2a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V9.5a2 2 0 0 1 2-2Z" fill="#fbfaf7" />
+      <path d="M18.2 7.5 25 14.3h-4.8a2 2 0 0 1-2-2V7.5Z" fill="#e5484d" />
+      <rect x="11.5" y="16" width="8" height="1.6" rx="0.8" fill="#857d73" />
+      <rect x="11.5" y="19.4" width="8" height="1.6" rx="0.8" fill="#c9c1b6" />
+      <rect x="11.5" y="22.8" width="5" height="1.6" rx="0.8" fill="#c9c1b6" />
+    </svg>
+  )
+}
+
+export function Logo({
+  className,
+  wordmarkClassName,
+}: {
+  className?: string
+  wordmarkClassName?: string
+}) {
+  return (
+    <span className={cn('inline-flex items-center gap-2', className)}>
+      <LogoMark />
+      <span className={cn('font-display text-xl font-semibold tracking-tight', wordmarkClassName)}>
+        <span className="text-ink">Pdf</span>
+        <span className="text-accent">reee</span>
+      </span>
+    </span>
+  )
+}
