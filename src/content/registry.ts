@@ -332,16 +332,23 @@ const tools: ToolDefinition[] = [
     h1: 'Convert PDF pages to JPG or PNG',
     tagline: 'Render each page to an image at the resolution you choose.',
     description:
-      'Convert PDF pages to JPG or PNG images with a selectable resolution and page range. Rendering happens in your browser using PDF.js — nothing is uploaded.',
+      'Convert PDF pages to JPG or PNG images with a selectable resolution, page range, and optional filter (grayscale, black & white, sepia, and more). Rendering happens in your browser using PDF.js — nothing is uploaded.',
     category: 'convert',
     icon: 'FileImage',
-    keywords: ['pdf to jpg', 'pdf to png', 'pdf to image', 'convert pdf to jpg'],
+    keywords: [
+      'pdf to jpg',
+      'pdf to png',
+      'pdf to image',
+      'convert pdf to jpg',
+      'pdf to grayscale image',
+      'pdf black and white',
+    ],
     accept: PDF_ACCEPT,
     multiple: false,
     related: ['jpg-to-pdf', 'compress-pdf', 'pdf-to-text'],
     howTo: [
       'Add a PDF to render its pages.',
-      'Pick the image format, resolution (DPI), and page range.',
+      'Pick the image format, resolution (DPI), page range, and an optional filter.',
       'Press “Convert to images” and download individual images or a ZIP.',
     ],
     limitations: [
@@ -357,6 +364,10 @@ const tools: ToolDefinition[] = [
         q: 'What does the DPI setting change?',
         a: 'It sets the raster resolution. 150 DPI suits screen use; 300 DPI suits printing.',
       },
+      {
+        q: 'Can I convert a PDF to grayscale or black & white?',
+        a: 'Yes. Choose a filter before converting — Grayscale suits photos, while Black & white thresholding is ideal for scans of text. Filters are applied to the rendered image in your browser.',
+      },
     ],
     status: 'implemented',
   },
@@ -367,16 +378,22 @@ const tools: ToolDefinition[] = [
     h1: 'Convert images to PDF',
     tagline: 'Combine JPG and PNG images into one PDF with your chosen page setup.',
     description:
-      'Turn JPG and PNG images into a single multi-page PDF. Choose page size, orientation, and margins, reorder images, and download — processed locally.',
+      'Turn JPG and PNG images into a single multi-page PDF. Choose page size, orientation, margins, and an optional filter, reorder images, and download — processed locally.',
     category: 'convert',
     icon: 'Images',
-    keywords: ['jpg to pdf', 'image to pdf', 'png to pdf', 'convert images to pdf'],
+    keywords: [
+      'jpg to pdf',
+      'image to pdf',
+      'png to pdf',
+      'convert images to pdf',
+      'grayscale images to pdf',
+    ],
     accept: MULTI_IMAGE_ACCEPT,
     multiple: true,
     related: ['pdf-to-jpg', 'merge-pdf', 'compress-pdf'],
     howTo: [
       'Drop one or more JPG or PNG images, or click to browse.',
-      'Reorder them and choose page size, orientation, and margins.',
+      'Reorder them and choose page size, orientation, margins, and an optional filter.',
       'Press “Create PDF” and download the multi-page document.',
     ],
     limitations: [

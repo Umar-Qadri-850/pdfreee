@@ -1,6 +1,7 @@
 import { PDFDocument, rgb } from 'pdf-lib'
 import { PdfError } from './errors'
 import { parsePageRanges } from './range'
+import { applyFilterToContext, type FilterId } from './filters'
 
 const PT_PER_MM = 2.834645669
 
@@ -17,6 +18,8 @@ export interface PdfToImageOptions {
   quality: number
   /** Page range string; empty means all pages. */
   range?: string
+  /** Optional raster filter applied to each rendered page. */
+  filter?: FilterId
   onProgress?: (fraction: number, message?: string) => void
   signal?: AbortSignal
 }
@@ -55,11 +58,16 @@ export async function pdfToImages(
     for (let i = 0; i < pages.length; i++) {
       if (options.signal?.aborted) throw new DOMException('Aborted', 'AbortError')
       const page = await doc.getPage(pages[i])
+      const filter = options.filter
       const rendered = await renderPageToBlob(page, {
         scale,
         type: options.format,
         quality: options.quality,
         signal: options.signal,
+        transform:
+          filter && filter !== 'none'
+            ? (context, width, height) => applyFilterToContext(context, width, height, filter)
+            : undefined,
       })
       out.push({ page: pages[i], ...rendered })
       options.onProgress?.((i + 1) / pages.length, `Rendered page ${pages[i]}`)
@@ -75,6 +83,8 @@ export interface ImageToPdfOptions {
   pageSize: keyof typeof PAGE_SIZES | 'fit'
   orientation: 'portrait' | 'landscape' | 'auto'
   marginMm: number
+  /** Optional raster filter applied to each source image before embedding. */
+  filter?: FilterId
   onProgress?: (fraction: number, message?: string) => void
 }
 
@@ -86,7 +96,7 @@ interface NormalizedImage {
 }
 
 /** Decode any supported image (incl. WebP + EXIF orientation) to JPG/PNG bytes. */
-async function normalizeImage(file: File): Promise<NormalizedImage> {
+async function normalizeImage(file: File, filter: FilterId = 'none'): Promise<NormalizedImage> {
   const bitmap = await loadBitmap(file)
   const width = bitmap.width
   const height = bitmap.height
@@ -97,6 +107,7 @@ async function normalizeImage(file: File): Promise<NormalizedImage> {
   if (!ctx) throw new PdfError('unsupported', 'This browser could not process the image.')
   ctx.drawImage(bitmap as CanvasImageSource, 0, 0)
   if ('close' in bitmap && typeof bitmap.close === 'function') bitmap.close()
+  applyFilterToContext(ctx, width, height, filter)
 
   const fileType = file.type
   const isPng = fileType === 'image/png'
@@ -135,7 +146,7 @@ export async function imagesToPdf(files: File[], options: ImageToPdfOptions): Pr
 
   for (let i = 0; i < files.length; i++) {
     options.onProgress?.((i + 0.5) / files.length, `Processing ${files[i].name}`)
-    const image = await normalizeImage(files[i])
+    const image = await normalizeImage(files[i], options.filter ?? 'none')
     const embedded =
       image.kind === 'png' ? await doc.embedPng(image.bytes) : await doc.embedJpg(image.bytes)
 

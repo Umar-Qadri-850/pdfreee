@@ -3,12 +3,14 @@ import { Download, RotateCcw } from 'lucide-react'
 import { ToolShell } from '@/components/tools/ToolShell'
 import { FileDropzone } from '@/components/tools/FileDropzone'
 import { FilenameField } from '@/components/tools/FilenameField'
+import { FilterSelect } from '@/components/tools/FilterSelect'
 import { useAsyncTask } from '@/components/tools/useAsyncTask'
 import { useSinglePdfFile } from '@/components/tools/useSinglePdfFile'
 import { useOutputFileName } from '@/components/tools/useOutputFileName'
 import { Alert, Button, Field, ProgressBar, Spinner } from '@/components/ui'
 import { getTool } from '@/content/registry'
 import { downloadBlob, formatBytes, safeBaseName } from '@/lib/utils'
+import type { FilterId } from '@/lib/pdf/filters'
 
 const tool = getTool('pdf-to-jpg')!
 
@@ -26,6 +28,7 @@ export default function PdfToJpg() {
   const [dpi, setDpi] = useState(150)
   const [quality, setQuality] = useState(0.85)
   const [range, setRange] = useState('')
+  const [filter, setFilter] = useState<FilterId>('none')
   const [images, setImages] = useState<OutImage[]>([])
   const task = useAsyncTask()
   const ext = format === 'image/png' ? 'png' : 'jpg'
@@ -53,6 +56,7 @@ export default function PdfToJpg() {
         format,
         quality,
         range,
+        filter,
         onProgress,
         signal,
       })
@@ -127,6 +131,7 @@ export default function PdfToJpg() {
                   className="h-10 w-full rounded-md border border-line-strong bg-paper px-3 font-mono text-sm outline-none focus:border-accent"
                 />
               </Field>
+              <FilterSelect value={filter} onChange={setFilter} id="p2i-filter" />
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
