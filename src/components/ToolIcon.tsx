@@ -1,7 +1,9 @@
 import {
   ArrowUpDown,
   BookOpen,
+  Crop,
   Droplets,
+  Edit,
   FileImage,
   FileOutput,
   FileText,
@@ -32,6 +34,8 @@ const ICONS: Record<string, LucideIcon> = {
   FileText,
   BookOpen,
   PenTool,
+  Crop,
+  Edit,
 }
 
 export function ToolIcon({ name, className }: { name: string; className?: string }) {

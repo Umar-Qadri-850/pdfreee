@@ -26,6 +26,7 @@ const CompressPdf = lazy(() => import('@/pages/tools/CompressPdf'))
 const PdfToJpg = lazy(() => import('@/pages/tools/PdfToJpg'))
 const JpgToPdf = lazy(() => import('@/pages/tools/JpgToPdf'))
 const RotatePdf = lazy(() => import('@/pages/tools/RotatePdf'))
+const CropPdf = lazy(() => import('@/pages/tools/CropPdf'))
 const DeletePdfPages = lazy(() => import('@/pages/tools/DeletePdfPages'))
 const ReorderPdfPages = lazy(() => import('@/pages/tools/ReorderPdfPages'))
 const ExtractPdfPages = lazy(() => import('@/pages/tools/ExtractPdfPages'))
@@ -105,6 +106,14 @@ export function App() {
             element={
               <Suspense fallback={<RouteFallback />}>
                 <RotatePdf />
+              </Suspense>
+            }
+          />
+          <Route
+            path="crop-pdf"
+            element={
+              <Suspense fallback={<RouteFallback />}>
+                <CropPdf />
               </Suspense>
             }
           />

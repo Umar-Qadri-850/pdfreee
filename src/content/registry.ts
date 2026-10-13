@@ -290,6 +290,45 @@ const tools: ToolDefinition[] = [
     status: 'implemented',
   },
   {
+    slug: 'crop-pdf',
+    path: '/crop-pdf',
+    name: 'Crop PDF',
+    h1: 'Crop PDF pages',
+    tagline: 'Trim white space or margins from your pages and download a tighter PDF.',
+    description:
+      'Crop a PDF by trimming margins from the top, bottom, left, and right of every page. Preview your pages, set the crop as a percentage, and download — all in your browser.',
+    category: 'organize',
+    icon: 'Crop',
+    keywords: ['crop pdf', 'trim pdf margins', 'cut pdf pages', 'remove white space pdf', 'pdf cropper'],
+    accept: PDF_ACCEPT,
+    multiple: false,
+    related: ['rotate-pdf', 'pdf-to-jpg', 'reorder-pdf-pages'],
+    howTo: [
+      'Add the PDF you want to crop.',
+      'Set how much to trim from each edge, as a percentage of the page.',
+      'Choose all pages or a selection, then press “Crop PDF” and download the result.',
+    ],
+    limitations: [
+      'The crop is applied to the page box; content outside the kept region is hidden by viewers rather than permanently deleted from the file.',
+      'Margins are a percentage of each page’s unrotated width and height, so pages with mixed sizes are each cropped proportionally.',
+    ],
+    faqs: [
+      {
+        q: 'Does cropping delete the removed content?',
+        a: 'No. Cropping sets the visible page box, so the trimmed area is hidden rather than erased. This keeps the operation lossless and reversible.',
+      },
+      {
+        q: 'Can I crop only some pages?',
+        a: 'Yes. Switch off “All pages” and select just the pages you want to crop.',
+      },
+      {
+        q: 'Are my files uploaded?',
+        a: 'No. Cropping runs entirely in your browser — your PDF never leaves your device.',
+      },
+    ],
+    status: 'implemented',
+  },
+  {
     slug: 'compress-pdf',
     path: '/compress-pdf',
     name: 'Compress PDF',
