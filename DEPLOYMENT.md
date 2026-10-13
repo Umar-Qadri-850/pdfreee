@@ -84,10 +84,44 @@ curl -fsS https://your-domain.example/robots.txt
 curl -fsS https://your-domain.example/sitemap.xml | head
 ```
 
-## 5. Caveats
+## 5. Optional advertising and consent
+
+Advertising is off unless you opt in. To enable Google AdSense (see
+[`.env.example`](.env.example)):
+
+```bash
+# .env
+VITE_ADSENSE_ENABLED=true
+VITE_ADSENSE_CLIENT=ca-pub-0000000000000000
+VITE_ADSENSE_SLOT_TOP=0000000000
+VITE_ADSENSE_SLOT_BOTTOM=0000000000
+```
+
+What the app guarantees regardless of configuration:
+
+- No ad markup is rendered and no ad script is loaded until the visitor has
+  **explicitly consented** to advertising through the cookie banner. The choice
+  is stored locally under `pdfreee.consent` and can be changed via the footer
+  “Cookie settings” control.
+- If AdSense is enabled but the IDs are missing or malformed, nothing renders.
+
+Two operator responsibilities when enabling ads:
+
+1. **Update the Content-Security-Policy.** `nginx.conf` allows only
+   same-origin scripts. AdSense needs Google origins added to `script-src`,
+   `connect-src`, `frame-src`, and `img-src` (for example
+   `https://pagead2.googlesyndication.com`, `https://*.googlesyndication.com`,
+   `https://googleads.g.doubleclick.net`, `https://*.gstatic.com`). Check
+   Google's current documentation for the exact list.
+2. **Serve a certified CMP where required.** In the EEA, UK, and Switzerland,
+   a Google-certified consent management platform is required before ads are
+   served. The built-in banner records consent but is not a certified CMP.
+
+## 6. Caveats
 
 - The nginx Content-Security-Policy allows only same-origin scripts. Adding
-  AdSense or any third-party script requires editing `script-src`/`connect-src`.
+  AdSense or any third-party script requires editing `script-src`/`connect-src`
+  as described above.
 - Password-protected PDFs are rejected with a clear message; unlocking is not a
   feature.
 - There is no backend. If you add analytics later, prefer a privacy-respecting,

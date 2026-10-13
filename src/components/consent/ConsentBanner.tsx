@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
+import { X } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { CONSENT_OPEN_EVENT, saveConsent } from '@/lib/consent'
 import { useConsent } from './useConsent'
@@ -29,6 +30,23 @@ export function ConsentBanner() {
     return () => window.removeEventListener(CONSENT_OPEN_EVENT, handler)
   }, [consent])
 
+  // Escape dismisses only when a decision already exists; a first-time visitor
+  // must make an explicit choice rather than silently dismissing the banner.
+  const dismiss = useCallback(() => {
+    if (consent === null) return
+    setOpen(false)
+    setShowDetails(false)
+  }, [consent])
+
+  useEffect(() => {
+    if (!open) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') dismiss()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open, dismiss])
+
   if (!open) return null
 
   function decide(value: boolean) {
@@ -44,9 +62,21 @@ export function ConsentBanner() {
         aria-labelledby="consent-title"
         className="pointer-events-auto mx-auto max-w-3xl rounded-lg border border-line-strong bg-surface p-4 shadow-lg sm:p-5"
       >
-        <h2 id="consent-title" className="text-base font-semibold">
-          Your choice on cookies
-        </h2>
+        <div className="flex items-start justify-between gap-3">
+          <h2 id="consent-title" className="text-base font-semibold">
+            Your choice on cookies
+          </h2>
+          {consent !== null ? (
+            <button
+              type="button"
+              onClick={dismiss}
+              aria-label="Close cookie settings"
+              className="-mr-1 -mt-1 rounded p-1 text-ink-muted hover:bg-surface-sunken hover:text-ink"
+            >
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          ) : null}
+        </div>
         <p className="mt-1.5 text-sm text-ink-soft">
           The core PDF tools run in your browser and need no cookies. We only ask about optional
           storage used for advertising. Read the{' '}
