@@ -57,6 +57,31 @@ export function safeBaseName(name: string): string {
   )
 }
 
+/**
+ * Sanitise a user-typed base name for an output file. Any extension the user
+ * appended is removed, unsafe characters become underscores, whitespace
+ * becomes dashes, and repeated/leading/trailing separators are trimmed.
+ */
+export function sanitizeOutputBase(name: string): string {
+  return (
+    stripExtension(name)
+      .replace(/[^\w\-. ]+/g, '_')
+      .replace(/\s+/g, '-')
+      .replace(/-{2,}/g, '-')
+      .replace(/^[-._]+|[-._]+$/g, '')
+      .slice(0, 80) || 'document'
+  )
+}
+
+/**
+ * Build a complete, filesystem-safe output file name from a user-editable base
+ * and an extension (with or without a leading dot).
+ */
+export function outputFileName(base: string, extension: string): string {
+  const ext = extension.replace(/^\./, '').replace(/[^A-Za-z0-9]/g, '') || 'pdf'
+  return `${sanitizeOutputBase(base)}.${ext}`
+}
+
 export function slugify(input: string): string {
   return input
     .toLowerCase()
