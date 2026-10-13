@@ -32,6 +32,17 @@ export function ToolShell({ tool, children }: { tool: ToolDefinition; children: 
     },
     {
       '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      name: `How to ${tool.name.toLowerCase()}`,
+      description: tool.tagline,
+      step: tool.howTo.map((text, index) => ({
+        '@type': 'HowToStep',
+        position: index + 1,
+        text,
+      })),
+    },
+    {
+      '@context': 'https://schema.org',
       '@type': 'FAQPage',
       mainEntity: tool.faqs.map((f) => ({
         '@type': 'Question',
