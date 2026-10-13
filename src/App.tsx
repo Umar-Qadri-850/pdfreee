@@ -18,6 +18,7 @@ const CookiePolicy = lazy(() =>
   import('@/pages/CookiePolicy').then((m) => ({ default: m.CookiePolicy })),
 )
 const HowItWorks = lazy(() => import('@/pages/HowItWorks').then((m) => ({ default: m.HowItWorks })))
+const Faq = lazy(() => import('@/pages/Faq').then((m) => ({ default: m.Faq })))
 
 const MergePdf = lazy(() => import('@/pages/tools/MergePdf'))
 const SplitPdf = lazy(() => import('@/pages/tools/SplitPdf'))
@@ -216,6 +217,14 @@ export function App() {
             element={
               <Suspense fallback={<RouteFallback />}>
                 <HowItWorks />
+              </Suspense>
+            }
+          />
+          <Route
+            path="faq"
+            element={
+              <Suspense fallback={<RouteFallback />}>
+                <Faq />
               </Suspense>
             }
           />
