@@ -1,10 +1,19 @@
 import { Link } from 'react-router'
 import { ContentPage } from '@/components/layout/ContentPage'
+import { ConsentSettingsButton } from '@/components/consent/ConsentSettingsButton'
+import { useConsent } from '@/components/consent/useConsent'
 import { ADSENSE } from '@/lib/ads'
 import { SITE } from '@/lib/site'
 
 export function CookiePolicy() {
   const adsOn = ADSENSE.enabled
+  const consent = useConsent()
+  const cookieChoice =
+    consent === null
+      ? 'not chosen yet'
+      : consent.advertising
+        ? 'allowed optional advertising storage'
+        : 'rejected optional advertising storage'
   return (
     <ContentPage
       title="Cookie policy"
@@ -12,6 +21,7 @@ export function CookiePolicy() {
       description="What cookies and local storage Pdfreee uses, honestly stated: the core toolkit requires none, and advertising is disabled unless explicitly configured."
       path="/cookie-policy"
       intro="This policy reflects the actual configuration of this site rather than a generic template."
+      updated={SITE.legalUpdated}
     >
       <h2>Current status</h2>
       <ul>
@@ -20,11 +30,26 @@ export function CookiePolicy() {
           Advertising is <strong>{adsOn ? 'enabled by the site operator' : 'disabled'}</strong> in
           this configuration.
         </li>
+        <li>
+          Your stored choice: <strong>{cookieChoice}</strong>.
+        </li>
       </ul>
+      <p>
+        You can change your choice at any time.
+      </p>
+      <p>
+        <ConsentSettingsButton />
+      </p>
 
       <h2>Strictly necessary storage</h2>
       <p>
-        A hosting provider may set cookies at the network edge for security (for example, bot
+        This site stores one small record of your own cookie choice in your browser’s local storage,
+        under the key <code>pdfreee.consent</code>. It holds a version number, the date of your
+        choice, and whether you allowed optional advertising storage. It is used only to remember
+        your decision and is never sent anywhere.
+      </p>
+      <p>
+        A hosting provider may also set cookies at the network edge for security (for example, bot
         mitigation or load balancing). These are not used to profile you and are not controlled by
         the application.
       </p>

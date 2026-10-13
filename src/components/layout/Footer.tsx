@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { FOOTER_COLUMNS, SITE } from '@/lib/site'
 import { Logo } from '../Logo'
+import { ConsentSettingsButton } from '@/components/consent/ConsentSettingsButton'
 
 export function Footer() {
   const year = new Date().getFullYear()
@@ -54,6 +55,9 @@ export function Footer() {
             </Link>
             .
           </p>
+          <div className="shrink-0">
+            <ConsentSettingsButton />
+          </div>
         </div>
       </div>
     </footer>

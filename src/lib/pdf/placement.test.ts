@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { PDFDocument } from 'pdf-lib'
 import {
   embedImageFile,
+  pdfPointToPreview,
   previewAngle,
   previewPointToPdf,
   previewRectToPdf,
@@ -62,6 +63,15 @@ describe('preview ↔ PDF coordinate mapping', () => {
     const screenY = rotated[1] * pdf.x + rotated[3] * pdf.y + rotated[5]
     expect(screenX).toBeCloseTo(50, 4)
     expect(screenY).toBeCloseTo(75, 4)
+  })
+
+  it('maps PDF points back to preview pixels (inverse of previewPointToPdf)', () => {
+    for (const transform of [A4_PORTRAIT, A4_LANDSCAPE, [0, 1.5, 1.5, 0, 0, 0] as Transform]) {
+      const pdf = previewPointToPdf(transform, 123, 456)
+      const back = pdfPointToPreview(transform, pdf.x, pdf.y)
+      expect(back.x).toBeCloseTo(123, 4)
+      expect(back.y).toBeCloseTo(456, 4)
+    }
   })
 
   it('converts radians to pdf-lib degrees', () => {

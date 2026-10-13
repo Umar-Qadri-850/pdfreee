@@ -18,6 +18,8 @@ export const SITE = {
   twitter: '@pdfreee',
   email: 'hello@pdfreee.app',
   defaultOgImage: '/og-image.svg',
+  /** Date shown on legal pages; update when privacy, terms, or cookie text changes. */
+  legalUpdated: '2026-10-13',
 } as const
 
 export const PRIMARY_NAV: NavLink[] = [
@@ -37,6 +39,7 @@ export const FOOTER_COLUMNS: { heading: string; links: NavLink[] }[] = [
       { label: 'Reorder pages', href: '/reorder-pdf-pages' },
       { label: 'Extract pages', href: '/extract-pdf-pages' },
       { label: 'Rotate PDF', href: '/rotate-pdf' },
+      { label: 'Crop PDF', href: '/crop-pdf' },
     ],
   },
   {
@@ -54,6 +57,8 @@ export const FOOTER_COLUMNS: { heading: string; links: NavLink[] }[] = [
       { label: 'Compress PDF', href: '/compress-pdf' },
       { label: 'Add page numbers', href: '/add-page-numbers' },
       { label: 'Add watermark', href: '/add-watermark' },
+      { label: 'Edit PDF', href: '/edit-pdf' },
+      { label: 'Sign PDF', href: '/sign-pdf' },
     ],
   },
   {
@@ -61,6 +66,7 @@ export const FOOTER_COLUMNS: { heading: string; links: NavLink[] }[] = [
     links: [
       { label: 'About', href: '/about' },
       { label: 'How it works', href: '/how-it-works' },
+      { label: 'FAQ', href: '/faq' },
       { label: 'Contact', href: '/contact' },
       { label: 'Blog', href: '/blog' },
     ],

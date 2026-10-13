@@ -2,11 +2,15 @@ import { useEffect, useState } from 'react'
 import { Download, RotateCcw } from 'lucide-react'
 import { ToolShell } from '@/components/tools/ToolShell'
 import { FileDropzone } from '@/components/tools/FileDropzone'
+import { FilenameField } from '@/components/tools/FilenameField'
+import { FilterSelect } from '@/components/tools/FilterSelect'
 import { useAsyncTask } from '@/components/tools/useAsyncTask'
 import { useSinglePdfFile } from '@/components/tools/useSinglePdfFile'
+import { useOutputFileName } from '@/components/tools/useOutputFileName'
 import { Alert, Button, Field, ProgressBar, Spinner } from '@/components/ui'
 import { getTool } from '@/content/registry'
 import { downloadBlob, formatBytes, safeBaseName } from '@/lib/utils'
+import type { FilterId } from '@/lib/pdf/filters'
 
 const tool = getTool('pdf-to-jpg')!
 
@@ -24,8 +28,11 @@ export default function PdfToJpg() {
   const [dpi, setDpi] = useState(150)
   const [quality, setQuality] = useState(0.85)
   const [range, setRange] = useState('')
+  const [filter, setFilter] = useState<FilterId>('none')
   const [images, setImages] = useState<OutImage[]>([])
   const task = useAsyncTask()
+  const ext = format === 'image/png' ? 'png' : 'jpg'
+  const out = useOutputFileName(file ? safeBaseName(file.name) : 'pages', ext)
 
   useEffect(() => {
     setImages([])
@@ -49,6 +56,7 @@ export default function PdfToJpg() {
         format,
         quality,
         range,
+        filter,
         onProgress,
         signal,
       })
@@ -63,8 +71,7 @@ export default function PdfToJpg() {
       )
     })
 
-  const ext = format === 'image/png' ? 'png' : 'jpg'
-  const base = file ? safeBaseName(file.name) : 'pages'
+  const base = out.stem
 
   return (
     <ToolShell tool={tool}>
@@ -124,6 +131,7 @@ export default function PdfToJpg() {
                   className="h-10 w-full rounded-md border border-line-strong bg-paper px-3 font-mono text-sm outline-none focus:border-accent"
                 />
               </Field>
+              <FilterSelect value={filter} onChange={setFilter} id="p2i-filter" />
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -140,6 +148,15 @@ export default function PdfToJpg() {
 
             {images.length > 0 ? (
               <div className="space-y-4">
+                <div className="max-w-md">
+                  <FilenameField
+                    base={out.base}
+                    extension={ext}
+                    onChange={out.setBase}
+                    id="pdf-to-jpg-output-name"
+                    hint="Used as the prefix for each image and the ZIP file."
+                  />
+                </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <p className="text-sm text-ink-soft">
                     {images.length} image{images.length === 1 ? '' : 's'} ready ·{' '}

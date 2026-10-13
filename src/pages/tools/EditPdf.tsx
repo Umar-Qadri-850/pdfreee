@@ -1,12 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ImagePlus, Trash2 } from 'lucide-react'
 import { ToolShell } from '@/components/tools/ToolShell'
 import { FileDropzone } from '@/components/tools/FileDropzone'
+import { FilenameField } from '@/components/tools/FilenameField'
 import { PageCanvas, type PlacedImage } from '@/components/tools/PageCanvas'
+import { FilterPicker } from '@/components/tools/FilterPicker'
+import { useFilteredPagePreviews } from '@/components/tools/useFilteredPagePreviews'
 import { usePdfPagePreviews } from '@/components/tools/usePdfPagePreviews'
 import { useAsyncTask } from '@/components/tools/useAsyncTask'
 import { useSinglePdfFile } from '@/components/tools/useSinglePdfFile'
-import { Alert, Button, Field, ProgressBar, Spinner } from '@/components/ui'
+import { useOutputFileName } from '@/components/tools/useOutputFileName'
+import { Alert, Badge, Button, Field, ProgressBar, Spinner } from '@/components/ui'
 import { getTool } from '@/content/registry'
 import { downloadBytes, safeBaseName } from '@/lib/utils'
 import { friendlyMessage, validateImageFile } from '@/lib/pdf/errors'
@@ -20,6 +24,8 @@ import {
   type EmbeddedImage,
 } from '@/lib/pdf/placement'
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
+import { isPageIncluded, resolveFilterPages } from '@/lib/pdf/filter-pages'
+import type { FilterId } from '@/lib/pdf/filters'
 
 const tool = getTool('edit-pdf')!
 
@@ -62,15 +68,31 @@ export default function EditPdf() {
   const { file, pageCount, loading, error, select, clear } = useSinglePdfFile()
   const { previews, status: previewStatus, error: previewError } = usePdfPagePreviews(file)
   const task = useAsyncTask()
+  const out = useOutputFileName(file ? `${safeBaseName(file.name)}-edited` : 'edited', 'pdf')
 
   const [entries, setEntries] = useState<TextEntry[]>([])
   const [images, setImages] = useState<ImageEntry[]>([])
   const [selected, setSelected] = useState<Selection>(null)
   const [pending, setPending] = useState<PendingImage | null>(null)
   const [imageError, setImageError] = useState<string | null>(null)
+  const [filter, setFilter] = useState<FilterId>('none')
+  const [filterRange, setFilterRange] = useState('')
 
   const imageInputRef = useRef<HTMLInputElement>(null)
   const urlsRef = useRef<string[]>([])
+
+  const filterPages = useMemo(
+    () => resolveFilterPages(filterRange, pageCount),
+    [filterRange, pageCount],
+  )
+  const included = useCallback(
+    (page: number) => filter !== 'none' && isPageIncluded(filterPages, page),
+    [filter, filterPages],
+  )
+  const {
+    urls: filteredUrls,
+    rendering: filterRendering,
+  } = useFilteredPagePreviews(previews, filter, included)
 
   const selectedEntry = useMemo(
     () => (selected?.type === 'text' ? entries.find((e) => e.id === selected.id) ?? null : null),
@@ -95,6 +117,8 @@ export default function EditPdf() {
     setSelected(null)
     setPending(null)
     setImageError(null)
+    setFilter('none')
+    setFilterRange('')
     task.reset()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file])
@@ -179,8 +203,8 @@ export default function EditPdf() {
   const runExport = () =>
     task.run(async ({ signal, onProgress }) => {
       if (!file) return
-      if (entries.length + images.length === 0) {
-        throw new Error('Add at least one text entry or image before exporting.')
+      if (entries.length + images.length === 0 && filter === 'none') {
+        throw new Error('Add at least one text entry or image, or choose a filter, before exporting.')
       }
       const bytes = new Uint8Array(await file.arrayBuffer())
       const pdfDoc = await PDFDocument.load(bytes)
@@ -231,8 +255,19 @@ export default function EditPdf() {
         onProgress(done / total, `Placed image ${done} of ${total}`)
       }
 
-      const out = await pdfDoc.save()
-      downloadBytes(new Uint8Array(out), `${safeBaseName(file.name)}-edited.pdf`)
+      const saved = await pdfDoc.save()
+      let result: Uint8Array = new Uint8Array(saved)
+      if (filter !== 'none') {
+        if (filterPages.error) throw new Error(filterPages.error)
+        const { applyPageFilters } = await import('@/lib/pdf/images')
+        result = await applyPageFilters(result, {
+          filter,
+          pages: filterPages.pages,
+          signal,
+          onProgress: (fraction, message) => onProgress(0.6 + fraction * 0.4, message),
+        })
+      }
+      downloadBytes(result, out.fileName)
     })
 
   return (
@@ -297,47 +332,95 @@ export default function EditPdf() {
             ) : null}
             {previewError ? <Alert tone="error">{previewError}</Alert> : null}
 
+            {previews.length > 0 ? (
+              <div className="space-y-3 rounded-lg border border-line bg-surface p-4">
+                <FilterPicker
+                  value={filter}
+                  onChange={setFilter}
+                  previewUrl={previews[0]?.blobUrl}
+                  label="Filter (optional)"
+                  hint="Pick a style to restyle your pages. Filtered pages are flattened into images, so their text is no longer selectable — pages left on Original keep their text."
+                />
+                {filter !== 'none' ? (
+                  <Field
+                    label="Pages to filter"
+                    htmlFor="edit-filter-range"
+                    hint={
+                      filterPages.error
+                        ? undefined
+                        : filterRange.trim()
+                          ? `Filtering ${filterPages.pages?.length ?? pageCount} of ${pageCount} pages.`
+                          : `Leave empty to filter all ${pageCount} pages.`
+                    }
+                  >
+                    <input
+                      id="edit-filter-range"
+                      value={filterRange}
+                      onChange={(e) => setFilterRange(e.target.value)}
+                      placeholder="e.g. 1-3, 5"
+                      aria-invalid={filterPages.error ? true : undefined}
+                      className="h-10 w-full rounded-md border border-line-strong bg-paper px-3 font-mono text-sm outline-none focus:border-accent"
+                    />
+                  </Field>
+                ) : null}
+                {filterPages.error ? <Alert tone="error">{filterPages.error}</Alert> : null}
+                {filterRendering && filter !== 'none' ? (
+                  <p className="inline-flex items-center gap-2 text-sm text-ink-muted">
+                    <Spinner /> Applying filter to page previews…
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+
             {previews.length > 0 && (
               <div className="space-y-8">
-                {previews.map((p) => (
-                  <div key={p.pageNumber} className="space-y-2">
-                    <p className="text-sm text-ink-muted">Page {p.pageNumber}</p>
-                    <PageCanvas
-                      preview={p}
-                      images={images.filter((img) => img.page === p.pageNumber)}
-                      selectedId={selected?.type === 'image' ? selected.id : null}
-                      onSelect={(id) => setSelected(id ? { type: 'image', id } : null)}
-                      onChange={updateImage}
-                      onPlace={(x, y) => placeAt(p.pageNumber, x, y)}
-                      placeLabel={`Click to add ${pending ? 'image' : 'text'} on page ${p.pageNumber}`}
-                    >
-                      {entries
-                        .filter((e) => e.page === p.pageNumber)
-                        .map((e) => (
-                          <div
-                            key={e.id}
-                            className={`absolute cursor-pointer select-none whitespace-pre ${
-                              selected?.type === 'text' && selected.id === e.id ? 'ring-2 ring-accent' : ''
-                            }`}
-                            style={{
-                              left: e.x,
-                              top: e.y,
-                              color: e.color,
-                              fontSize: `${e.fontSize * RENDER_SCALE}px`,
-                              lineHeight: 1,
-                            }}
-                            onPointerDown={(ev) => {
-                              ev.stopPropagation()
-                              setSelected({ type: 'text', id: e.id })
-                            }}
-                            onClick={(ev) => ev.stopPropagation()}
-                          >
-                            {e.text}
-                          </div>
-                        ))}
-                    </PageCanvas>
-                  </div>
-                ))}
+                {previews.map((p) => {
+                  const filteredUrl = filteredUrls.get(p.pageNumber)
+                  return (
+                    <div key={p.pageNumber} className="space-y-2">
+                      <p className="flex flex-wrap items-center gap-2 text-sm text-ink-muted">
+                        Page {p.pageNumber}
+                        {filter !== 'none' && !included(p.pageNumber) ? (
+                          <Badge tone="warn">Original — not in filter range</Badge>
+                        ) : null}
+                      </p>
+                      <PageCanvas
+                        preview={filteredUrl ? { ...p, blobUrl: filteredUrl } : p}
+                        images={images.filter((img) => img.page === p.pageNumber)}
+                        selectedId={selected?.type === 'image' ? selected.id : null}
+                        onSelect={(id) => setSelected(id ? { type: 'image', id } : null)}
+                        onChange={updateImage}
+                        onPlace={(x, y) => placeAt(p.pageNumber, x, y)}
+                        placeLabel={`Click to add ${pending ? 'image' : 'text'} on page ${p.pageNumber}`}
+                      >
+                        {entries
+                          .filter((e) => e.page === p.pageNumber)
+                          .map((e) => (
+                            <div
+                              key={e.id}
+                              className={`absolute cursor-pointer select-none whitespace-pre ${
+                                selected?.type === 'text' && selected.id === e.id ? 'ring-2 ring-accent' : ''
+                              }`}
+                              style={{
+                                left: e.x,
+                                top: e.y,
+                                color: e.color,
+                                fontSize: `${e.fontSize * RENDER_SCALE}px`,
+                                lineHeight: 1,
+                              }}
+                              onPointerDown={(ev) => {
+                                ev.stopPropagation()
+                                setSelected({ type: 'text', id: e.id })
+                              }}
+                              onClick={(ev) => ev.stopPropagation()}
+                            >
+                              {e.text}
+                            </div>
+                          ))}
+                      </PageCanvas>
+                    </div>
+                  )
+                })}
               </div>
             )}
 
@@ -438,6 +521,15 @@ export default function EditPdf() {
                 )}
               </div>
             ) : null}
+
+            <div className="max-w-md">
+              <FilenameField
+                base={out.base}
+                extension="pdf"
+                onChange={out.setBase}
+                id="edit-output-name"
+              />
+            </div>
 
             <div className="flex flex-wrap items-center gap-3">
               <Button onClick={runExport} disabled={task.status === 'running'}>

@@ -69,6 +69,7 @@ export function PageGrid({
                   src={thumb.url}
                   alt={`Page ${thumb.page} preview`}
                   loading="lazy"
+                  decoding="async"
                   className="w-full rounded-sm transition-transform duration-200"
                   style={{
                     aspectRatio: `${thumb.width} / ${thumb.height}`,

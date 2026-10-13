@@ -11,31 +11,11 @@ import { buttonClasses, SectionHeading } from '@/components/ui'
 import { useSeo, breadcrumbJsonLd, siteOrigin } from '@/lib/seo'
 import { SITE } from '@/lib/site'
 import { POSTS } from '@/content/blog'
+import { HOME_FAQS } from '@/content/faq'
 import { getTool } from '@/content/registry'
 import { formatDate } from '@/lib/utils'
 
-const HOME_FAQ = [
-  {
-    q: 'Is Pdfreee really free?',
-    a: 'Yes. The core PDF tools are free to use and do not require an account or payment.',
-  },
-  {
-    q: 'Are my files uploaded to a server?',
-    a: 'No. The core tools run in your browser using JavaScript. Your documents never leave your device.',
-  },
-  {
-    q: 'Is there a file size or page limit?',
-    a: 'There is no fixed limit set by us. Day-to-day limits depend on your device’s available memory, since your browser does the processing.',
-  },
-  {
-    q: 'Can Pdfreee compress any PDF to any size I want?',
-    a: 'No, and any tool that promises that is not being straight with you. Our compression performs lossless structural rewriting; if the rebuilt file is not smaller, we tell you rather than handing over a worse file.',
-  },
-  {
-    q: 'Do I need to install anything?',
-    a: 'No. Pdfreee works in a modern desktop or mobile browser. Nothing is installed on your device.',
-  },
-]
+const HOME_FAQ = HOME_FAQS
 
 function HeroSearch() {
   const [query, setQuery] = useState('')
@@ -376,6 +356,13 @@ export function Home() {
             </details>
           ))}
         </div>
+        <Link
+          to="/faq"
+          className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent-strong hover:underline"
+        >
+          Read all frequently asked questions
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </Link>
       </section>
     </>
   )

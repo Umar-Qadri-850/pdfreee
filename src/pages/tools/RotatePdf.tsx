@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { Download, RotateCcw } from 'lucide-react'
 import { ToolShell } from '@/components/tools/ToolShell'
 import { FileDropzone } from '@/components/tools/FileDropzone'
+import { FilenameField } from '@/components/tools/FilenameField'
 import { PageGrid } from '@/components/tools/PageGrid'
 import { useAsyncTask } from '@/components/tools/useAsyncTask'
 import { useSinglePdfFile } from '@/components/tools/useSinglePdfFile'
 import { usePdfSelection } from '@/components/tools/usePdfSelection'
+import { useOutputFileName } from '@/components/tools/useOutputFileName'
 import { Alert, Button, Field, ProgressBar, Spinner } from '@/components/ui'
 import { getTool } from '@/content/registry'
 import { downloadBytes, formatBytes, safeBaseName } from '@/lib/utils'
@@ -21,6 +23,7 @@ export default function RotatePdf() {
   const [allPages, setAllPages] = useState(true)
   const [result, setResult] = useState<Uint8Array | null>(null)
   const task = useAsyncTask()
+  const out = useOutputFileName(file ? `${safeBaseName(file.name)}-rotated` : 'rotated', 'pdf')
 
   useEffect(() => {
     selection.clear()
@@ -132,8 +135,16 @@ export default function RotatePdf() {
               <div className="rounded-lg border border-success/25 bg-success-soft p-4">
                 <p className="font-medium text-success">Rotation applied</p>
                 <p className="mt-1 text-sm text-ink-soft">Output is {formatBytes(result.length)}.</p>
+                <div className="mt-3">
+                  <FilenameField
+                    base={out.base}
+                    extension="pdf"
+                    onChange={out.setBase}
+                    id="rotate-output-name"
+                  />
+                </div>
                 <div className="mt-3 flex flex-wrap gap-3">
-                  <Button onClick={() => downloadBytes(result, `${safeBaseName(file.name)}-rotated.pdf`)}>
+                  <Button onClick={() => downloadBytes(result, out.fileName)}>
                     <Download className="h-4 w-4" /> Download PDF
                   </Button>
                   <Button variant="secondary" onClick={() => { setResult(null); task.reset() }}>

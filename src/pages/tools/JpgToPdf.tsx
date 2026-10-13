@@ -2,12 +2,16 @@ import { useEffect, useState } from 'react'
 import { Download, RotateCcw } from 'lucide-react'
 import { ToolShell } from '@/components/tools/ToolShell'
 import { FileDropzone } from '@/components/tools/FileDropzone'
+import { FilenameField } from '@/components/tools/FilenameField'
+import { FilterSelect } from '@/components/tools/FilterSelect'
 import { OrderedFileList } from '@/components/tools/OrderedFileList'
 import { useAsyncTask } from '@/components/tools/useAsyncTask'
+import { useOutputFileName } from '@/components/tools/useOutputFileName'
 import { Alert, Button, Field, ProgressBar } from '@/components/ui'
 import { getTool } from '@/content/registry'
 import { validateImageFile, friendlyMessage } from '@/lib/pdf/errors'
 import { downloadBytes, formatBytes, safeBaseName } from '@/lib/utils'
+import type { FilterId } from '@/lib/pdf/filters'
 
 const tool = getTool('jpg-to-pdf')!
 
@@ -25,8 +29,13 @@ export default function JpgToPdf() {
   const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]['id']>('a4')
   const [orientation, setOrientation] = useState<'portrait' | 'landscape' | 'auto'>('portrait')
   const [marginMm, setMarginMm] = useState(0)
+  const [filter, setFilter] = useState<FilterId>('none')
   const [result, setResult] = useState<Uint8Array | null>(null)
   const task = useAsyncTask()
+  const out = useOutputFileName(
+    `${safeBaseName(files[0]?.name ?? 'images')}-images`,
+    'pdf',
+  )
 
   const [previews, setPreviews] = useState<{ file: File; url: string }[]>([])
 
@@ -68,7 +77,7 @@ export default function JpgToPdf() {
   const run = () =>
     task.run(async ({ onProgress }) => {
       const { imagesToPdf } = await import('@/lib/pdf/images')
-      const bytes = await imagesToPdf(files, { pageSize, orientation, marginMm, onProgress })
+      const bytes = await imagesToPdf(files, { pageSize, orientation, marginMm, filter, onProgress })
       setResult(bytes)
     })
 
@@ -168,6 +177,7 @@ export default function JpgToPdf() {
                   className="w-full accent-[var(--color-accent)]"
                 />
               </Field>
+              <FilterSelect value={filter} onChange={setFilter} id="j2p-filter" />
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -188,8 +198,16 @@ export default function JpgToPdf() {
                 <p className="mt-1 text-sm text-ink-soft">
                   {files.length} page{files.length === 1 ? '' : 's'} · {formatBytes(result.length)}
                 </p>
+                <div className="mt-3">
+                  <FilenameField
+                    base={out.base}
+                    extension="pdf"
+                    onChange={out.setBase}
+                    id="jpg-to-pdf-output-name"
+                  />
+                </div>
                 <div className="mt-3 flex flex-wrap gap-3">
-                  <Button onClick={() => downloadBytes(result, `${safeBaseName(files[0]?.name ?? 'images')}-images.pdf`)}>
+                  <Button onClick={() => downloadBytes(result, out.fileName)}>
                     <Download className="h-4 w-4" /> Download PDF
                   </Button>
                   <Button variant="secondary" onClick={() => setResult(null)}>

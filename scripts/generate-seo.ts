@@ -20,6 +20,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import { TOOLS, type ToolDefinition } from '../src/content/registry'
+import { SITE_FAQS } from '../src/content/faq'
 import { FOOTER_COLUMNS, SITE, resolveSiteUrl } from '../src/lib/site'
 import { parseFrontmatter } from '../src/content/frontmatter'
 
@@ -89,6 +90,17 @@ function toolJsonLd(tool: ToolDefinition): Record<string, unknown>[] {
       { name: 'Tools', path: '/tools' },
       { name: tool.name, path: tool.path },
     ]),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'HowTo',
+      name: `How to ${tool.name.toLowerCase()}`,
+      description: tool.tagline,
+      step: tool.howTo.map((text, index) => ({
+        '@type': 'HowToStep',
+        position: index + 1,
+        text,
+      })),
+    },
     {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
@@ -270,6 +282,25 @@ async function main() {
       description:
         'Practical, honest guides for working with PDF files: merging, compressing without wrecking text, extracting pages, and converting images.',
       lastmod: today,
+    },
+    {
+      path: '/faq',
+      title: `Frequently asked questions | ${SITE.name}`,
+      description:
+        'Straight answers about the Pdfreee PDF tools: what is free, how your files stay private, file size limits, compression results, and which conversions are not supported yet.',
+      lastmod: today,
+      jsonLd: [
+        {
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          url: absolute('/faq'),
+          mainEntity: SITE_FAQS.map((faq) => ({
+            '@type': 'Question',
+            name: faq.q,
+            acceptedAnswer: { '@type': 'Answer', text: faq.a },
+          })),
+        },
+      ],
     },
     {
       path: '/about',

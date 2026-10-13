@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { PDFDocument } from 'pdf-lib'
 import { PdfError } from './errors'
 import {
+  cropPages,
   deletePages,
   extractPages,
   getPageCount,
@@ -142,6 +143,37 @@ describe('rotatePages', () => {
     const once = await rotatePages(bytes, { angle: 90 })
     const twice = await rotatePages(once, { angle: 270 })
     expect(await getPageSizes(twice)).toEqual([{ width: 200, height: 400 }])
+  })
+})
+
+describe('cropPages', () => {
+  it('trims the requested margins from every page', async () => {
+    const bytes = await samplePdf([[200, 400]])
+    const out = await cropPages(bytes, { top: 0.1, right: 0.1, bottom: 0.1, left: 0.1 })
+    expect(await getPageSizes(out)).toEqual([{ width: 160, height: 320 }])
+  })
+
+  it('crops only the selected pages', async () => {
+    const bytes = await samplePdf([
+      [200, 400],
+      [200, 400],
+    ])
+    const out = await cropPages(
+      bytes,
+      { top: 0, right: 0.5, bottom: 0, left: 0 },
+      [2],
+    )
+    expect(await getPageSizes(out)).toEqual([
+      { width: 200, height: 400 },
+      { width: 100, height: 400 },
+    ])
+  })
+
+  it('rejects margins that would remove the whole page', async () => {
+    const bytes = await samplePdf([[200, 400]])
+    await expect(
+      cropPages(bytes, { top: 0.6, right: 0, bottom: 0.6, left: 0 }),
+    ).rejects.toBeInstanceOf(PdfError)
   })
 })
 

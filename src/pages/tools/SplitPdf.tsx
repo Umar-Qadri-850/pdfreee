@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { Download, RotateCcw } from 'lucide-react'
 import { ToolShell } from '@/components/tools/ToolShell'
 import { FileDropzone } from '@/components/tools/FileDropzone'
+import { FilenameField } from '@/components/tools/FilenameField'
 import { useAsyncTask } from '@/components/tools/useAsyncTask'
+import { useOutputFileName } from '@/components/tools/useOutputFileName'
 import { Alert, Button, Field, ProgressBar } from '@/components/ui'
 import { getTool } from '@/content/registry'
 import { validatePdfFile, friendlyMessage } from '@/lib/pdf/errors'
@@ -21,6 +23,7 @@ export default function SplitPdf() {
   const [errors, setErrors] = useState<string[]>([])
   const [result, setResult] = useState<{ parts: { name: string; bytes: Uint8Array }[] } | null>(null)
   const task = useAsyncTask()
+  const out = useOutputFileName(file ? `${safeBaseName(file.name)}-split` : 'split', 'pdf')
 
   const selectFile = async (incoming: File[]) => {
     setErrors([])
@@ -64,7 +67,7 @@ export default function SplitPdf() {
       if ('error' in selections) throw new Error(selections.error)
       const { splitPdf } = await import('@/lib/pdf/operations')
       const bytes = new Uint8Array(await file.arrayBuffer())
-      const parts = await splitPdf(bytes, selections, safeBaseName(file.name), onProgress)
+      const parts = await splitPdf(bytes, selections, out.stem, onProgress)
       setResult({ parts })
     })
 
@@ -161,6 +164,19 @@ export default function SplitPdf() {
                 <p className="font-medium text-success">
                   Created {result.parts.length} file{result.parts.length === 1 ? '' : 's'}
                 </p>
+                <div className="mt-3">
+                  <FilenameField
+                    base={out.base}
+                    extension="pdf"
+                    onChange={out.setBase}
+                    id="split-output-name"
+                    hint={
+                      result.parts.length === 1
+                        ? 'The .pdf extension is added automatically.'
+                        : 'Names the ZIP and the PDF files inside it (the extension is added automatically).'
+                    }
+                  />
+                </div>
                 <div className="mt-3 flex flex-wrap gap-3">
                   {result.parts.length === 1 ? (
                     <Button
@@ -173,7 +189,7 @@ export default function SplitPdf() {
                       onClick={async () => {
                         const { createZip } = await import('@/lib/zip')
                         const zip = createZip(result.parts.map((p) => ({ name: p.name, data: p.bytes })))
-                        downloadBlob(zip, `${safeBaseName(file.name)}-split.zip`)
+                        downloadBlob(zip, `${out.stem}-split.zip`)
                       }}
                     >
                       <Download className="h-4 w-4" /> Download ZIP ({result.parts.length} files)

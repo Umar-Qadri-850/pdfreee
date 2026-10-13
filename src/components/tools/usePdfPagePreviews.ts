@@ -41,6 +41,7 @@ export function usePdfPagePreviews(file: File | null): PagePreviewsState {
     }
 
     let cancelled = false
+    const controller = new AbortController()
     setStatus('running')
 
     void (async () => {
@@ -50,10 +51,15 @@ export function usePdfPagePreviews(file: File | null): PagePreviewsState {
         const list: PagePreview[] = []
         try {
           for (let i = 1; i <= doc.numPages; i++) {
-            if (cancelled) break
+            if (cancelled || controller.signal.aborted) break
             const page = await doc.getPage(i)
             const viewport = page.getViewport({ scale: RENDER_SCALE })
-            const rendered = await renderPageToBlob(page, { scale: RENDER_SCALE, type: 'image/png' })
+            const rendered = await renderPageToBlob(page, {
+              scale: RENDER_SCALE,
+              type: 'image/png',
+              signal: controller.signal,
+            })
+            if (cancelled || controller.signal.aborted) break
             const blobUrl = URL.createObjectURL(rendered.blob)
             urlsRef.current.push(blobUrl)
             list.push({
@@ -67,12 +73,12 @@ export function usePdfPagePreviews(file: File | null): PagePreviewsState {
         } finally {
           await doc.close()
         }
-        if (!cancelled) {
+        if (!cancelled && !controller.signal.aborted) {
           setPreviews(list)
           setStatus('done')
         }
       } catch (err) {
-        if (!cancelled) {
+        if (!cancelled && !controller.signal.aborted) {
           setError(friendlyMessage(err))
           setStatus('error')
         }
@@ -81,6 +87,7 @@ export function usePdfPagePreviews(file: File | null): PagePreviewsState {
 
     return () => {
       cancelled = true
+      controller.abort()
     }
   }, [file])
 

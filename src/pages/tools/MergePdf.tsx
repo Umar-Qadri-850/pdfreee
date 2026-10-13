@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { Download, RotateCcw } from 'lucide-react'
 import { ToolShell } from '@/components/tools/ToolShell'
 import { FileDropzone } from '@/components/tools/FileDropzone'
+import { FilenameField } from '@/components/tools/FilenameField'
 import { OrderedFileList } from '@/components/tools/OrderedFileList'
 import { useAsyncTask } from '@/components/tools/useAsyncTask'
+import { useOutputFileName } from '@/components/tools/useOutputFileName'
 import { Alert, Button, ProgressBar } from '@/components/ui'
 import { getTool } from '@/content/registry'
 import { validatePdfFile, friendlyMessage, FILE_LIMITS } from '@/lib/pdf/errors'
@@ -21,6 +23,10 @@ export default function MergePdf() {
   const [errors, setErrors] = useState<string[]>([])
   const [result, setResult] = useState<Result | null>(null)
   const task = useAsyncTask()
+  const out = useOutputFileName(
+    `${safeBaseName(files[0]?.name ?? 'merged')}-merged`,
+    'pdf',
+  )
 
   const addFiles = async (incoming: File[]) => {
     const accepted: File[] = []
@@ -136,12 +142,16 @@ export default function MergePdf() {
                 <p className="mt-1 text-sm text-ink-soft">
                   Your combined PDF is {formatBytes(result.bytes.length)} and ready to download.
                 </p>
+                <div className="mt-3">
+                  <FilenameField
+                    base={out.base}
+                    extension="pdf"
+                    onChange={out.setBase}
+                    id="merge-output-name"
+                  />
+                </div>
                 <div className="mt-3 flex flex-wrap gap-3">
-                  <Button
-                    onClick={() =>
-                      downloadBytes(result.bytes, `${safeBaseName(files[0]?.name ?? 'merged')}-merged.pdf`)
-                    }
-                  >
+                  <Button onClick={() => downloadBytes(result.bytes, out.fileName)}>
                     <Download className="h-4 w-4" /> Download PDF
                   </Button>
                   <Button

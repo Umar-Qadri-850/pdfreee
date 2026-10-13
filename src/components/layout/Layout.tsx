@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router'
 import { Navbar } from './Navbar'
 import { Footer } from './Footer'
+import { ConsentBanner } from '@/components/consent/ConsentBanner'
 
 function ScrollToTop() {
   const { pathname, hash } = useLocation()
@@ -27,6 +28,7 @@ export function Layout() {
         <Outlet />
       </main>
       <Footer />
+      <ConsentBanner />
     </div>
   )
 }

@@ -1,14 +1,17 @@
 import { useEffect, useRef } from 'react'
 import { ADSENSE, isAdsenseReady, loadAdsenseScript } from '@/lib/ads'
+import { useConsent } from '@/components/consent/useConsent'
 
 /**
  * Reserved responsive ad container. Renders nothing unless AdSense is fully
- * configured with a real publisher and slot ID. Slots are labelled so they can
- * never be mistaken for tool controls or download buttons.
+ * configured with a real publisher and slot ID AND the visitor has consented to
+ * advertising. Slots are labelled so they can never be mistaken for tool
+ * controls or download buttons.
  */
 export function AdSlot({ slot, label = 'Advertisement' }: { slot?: string; label?: string }) {
   const ref = useRef<HTMLModElement>(null)
-  const ready = isAdsenseReady(slot)
+  const consent = useConsent()
+  const ready = isAdsenseReady(slot) && consent?.advertising === true
 
   useEffect(() => {
     if (!ready) return

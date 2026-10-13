@@ -155,6 +155,57 @@ export async function rotatePages(bytes: Uint8Array, options: RotateOptions, onP
   return result
 }
 
+export interface CropMargins {
+  /** Fraction of the page width/height to trim from each edge (0–0.9). */
+  top: number
+  right: number
+  bottom: number
+  left: number
+}
+
+/**
+ * Crop pages by trimming margins from each edge. The crop is applied to both the
+ * media box and the crop box, so compliant viewers and printers show only the
+ * kept region. Margins are fractions of each page's own (unrotated) dimensions.
+ */
+export async function cropPages(
+  bytes: Uint8Array,
+  margins: CropMargins,
+  pages?: number[],
+  onProgress?: ProgressFn,
+): Promise<Uint8Array> {
+  const src = await loadPdf(bytes)
+  const total = src.getPageCount()
+  const targets = pages && pages.length > 0 ? new Set(pages) : null
+
+  const horizontal = margins.left + margins.right
+  const vertical = margins.top + margins.bottom
+  if (horizontal >= 0.95 || vertical >= 0.95) {
+    throw new PdfError('unknown', 'Those margins are too large. Reduce them so some page remains.')
+  }
+
+  for (let i = 1; i <= total; i++) {
+    if (targets && !targets.has(i)) continue
+    const page = src.getPage(i - 1)
+    const { width, height } = page.getSize()
+    const x = margins.left * width
+    const y = margins.bottom * height
+    const w = width * (1 - horizontal)
+    const h = height * (1 - vertical)
+    if (w < 1 || h < 1) {
+      throw new PdfError('unknown', 'Those margins would remove the whole page. Reduce them and try again.')
+    }
+    page.setCropBox(x, y, w, h)
+    page.setMediaBox(x, y, w, h)
+    if (i % 25 === 0) onProgress?.(i / total, `Cropped ${i} of ${total} pages`)
+  }
+  onProgress?.(0.9, 'Saving')
+  const result = await src.save()
+  await verifyPdf(result, total)
+  onProgress?.(1, 'Done')
+  return result
+}
+
 export async function getPageCount(bytes: Uint8Array): Promise<number> {
   return (await loadPdf(bytes)).getPageCount()
 }

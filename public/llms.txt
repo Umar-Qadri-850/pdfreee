@@ -1,0 +1,45 @@
+# Pdfreee
+
+> Pdfreee is a free, privacy-first PDF toolkit that runs entirely in the browser. Files are processed locally on the visitor's device and are never uploaded to a server. No account is required for the core tools.
+
+Canonical site: https://pdfreee.app
+
+## Key pages
+
+- [Home](https://pdfreee.app/): overview of the toolkit and the privacy model.
+- [All tools](https://pdfreee.app/tools): the full list of working PDF tools.
+- [FAQ](https://pdfreee.app/faq): answers about privacy, limits, and results.
+- [How it works](https://pdfreee.app/how-it-works): why files never leave the device.
+- [Blog](https://pdfreee.app/blog): practical PDF guides.
+
+## Tools
+
+- [Merge PDF](https://pdfreee.app/merge-pdf): combine multiple PDFs into one document.
+- [Split PDF](https://pdfreee.app/split-pdf): split one PDF into several by page range or single pages.
+- [Extract pages](https://pdfreee.app/extract-pdf-pages): pull selected pages into a new document.
+- [Delete pages](https://pdfreee.app/delete-pdf-pages): remove unwanted pages.
+- [Reorder pages](https://pdfreee.app/reorder-pdf-pages): rearrange pages with drag and drop.
+- [Rotate PDF](https://pdfreee.app/rotate-pdf): rotate all pages or a selection by 90, 180, or 270 degrees.
+- [Crop PDF](https://pdfreee.app/crop-pdf): trim margins from each edge of every page.
+- [Compress PDF](https://pdfreee.app/compress-pdf): lossless structural rewrite to reduce size where possible.
+- [PDF to JPG](https://pdfreee.app/pdf-to-jpg): render pages to JPG or PNG with optional filters.
+- [JPG to PDF](https://pdfreee.app/jpg-to-pdf): combine JPG and PNG images into one PDF.
+- [PDF to text](https://pdfreee.app/pdf-to-text): extract selectable text from a PDF.
+- [PDF reader](https://pdfreee.app/pdf-reader): view a PDF in the browser.
+- [Add page numbers](https://pdfreee.app/add-page-numbers): stamp page numbers.
+- [Add watermark](https://pdfreee.app/add-watermark): overlay text watermarks.
+- [Edit PDF](https://pdfreee.app/edit-pdf): add text and images to pages.
+- [Sign PDF](https://pdfreee.app/sign-pdf): draw or upload a signature and place it on a page.
+
+## Policies
+
+- [Privacy policy](https://pdfreee.app/privacy-policy): documents are processed locally and never uploaded.
+- [Cookie policy](https://pdfreee.app/cookie-policy): the core tools need no cookies; optional advertising is opt-in.
+- [Terms of use](https://pdfreee.app/terms): terms governing use of the tools.
+
+## Limits and honest scope
+
+- Maximum PDF file size: 300 MB; a warning is shown above 50 MB. Maximum image size: 40 MB.
+- Compression is a lossless structural rewrite. It does not re-encode embedded images, so reductions vary by document.
+- Text extraction only returns text actually stored in the PDF; scanned image-only PDFs require OCR, which is not yet supported.
+- Office/Word/Excel/PowerPoint conversion, OCR, PDF encryption/decryption (protect/unlock), PDF/A validation, and repair are not currently offered.

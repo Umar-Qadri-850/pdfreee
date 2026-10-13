@@ -290,6 +290,45 @@ const tools: ToolDefinition[] = [
     status: 'implemented',
   },
   {
+    slug: 'crop-pdf',
+    path: '/crop-pdf',
+    name: 'Crop PDF',
+    h1: 'Crop PDF pages',
+    tagline: 'Trim white space or margins from your pages and download a tighter PDF.',
+    description:
+      'Crop a PDF by trimming margins from the top, bottom, left, and right of every page. Drag the crop box on a live preview or type exact percentages, then download — all in your browser.',
+    category: 'organize',
+    icon: 'Crop',
+    keywords: ['crop pdf', 'trim pdf margins', 'cut pdf pages', 'remove white space pdf', 'pdf cropper'],
+    accept: PDF_ACCEPT,
+    multiple: false,
+    related: ['rotate-pdf', 'pdf-to-jpg', 'reorder-pdf-pages'],
+    howTo: [
+      'Add the PDF you want to crop.',
+      'Drag the crop box on the preview to set the region, or type a percentage for each edge.',
+      'Choose all pages or a selection, then press “Crop PDF” and download the result.',
+    ],
+    limitations: [
+      'The crop is applied to the page box; content outside the kept region is hidden by viewers rather than permanently deleted from the file.',
+      'Margins are a percentage of each page’s unrotated width and height, so pages with mixed sizes are each cropped proportionally.',
+    ],
+    faqs: [
+      {
+        q: 'Does cropping delete the removed content?',
+        a: 'No. Cropping sets the visible page box, so the trimmed area is hidden rather than erased. This keeps the operation lossless and reversible.',
+      },
+      {
+        q: 'Can I crop only some pages?',
+        a: 'Yes. Switch off “All pages” and select just the pages you want to crop.',
+      },
+      {
+        q: 'Are my files uploaded?',
+        a: 'No. Cropping runs entirely in your browser — your PDF never leaves your device.',
+      },
+    ],
+    status: 'implemented',
+  },
+  {
     slug: 'compress-pdf',
     path: '/compress-pdf',
     name: 'Compress PDF',
@@ -332,16 +371,23 @@ const tools: ToolDefinition[] = [
     h1: 'Convert PDF pages to JPG or PNG',
     tagline: 'Render each page to an image at the resolution you choose.',
     description:
-      'Convert PDF pages to JPG or PNG images with a selectable resolution and page range. Rendering happens in your browser using PDF.js — nothing is uploaded.',
+      'Convert PDF pages to JPG or PNG images with a selectable resolution, page range, and optional filter (grayscale, black & white, sepia, and more). Rendering happens in your browser using PDF.js — nothing is uploaded.',
     category: 'convert',
     icon: 'FileImage',
-    keywords: ['pdf to jpg', 'pdf to png', 'pdf to image', 'convert pdf to jpg'],
+    keywords: [
+      'pdf to jpg',
+      'pdf to png',
+      'pdf to image',
+      'convert pdf to jpg',
+      'pdf to grayscale image',
+      'pdf black and white',
+    ],
     accept: PDF_ACCEPT,
     multiple: false,
     related: ['jpg-to-pdf', 'compress-pdf', 'pdf-to-text'],
     howTo: [
       'Add a PDF to render its pages.',
-      'Pick the image format, resolution (DPI), and page range.',
+      'Pick the image format, resolution (DPI), page range, and an optional filter.',
       'Press “Convert to images” and download individual images or a ZIP.',
     ],
     limitations: [
@@ -357,6 +403,10 @@ const tools: ToolDefinition[] = [
         q: 'What does the DPI setting change?',
         a: 'It sets the raster resolution. 150 DPI suits screen use; 300 DPI suits printing.',
       },
+      {
+        q: 'Can I convert a PDF to grayscale or black & white?',
+        a: 'Yes. Choose a filter before converting — Grayscale suits photos, while Black & white thresholding is ideal for scans of text. Filters are applied to the rendered image in your browser.',
+      },
     ],
     status: 'implemented',
   },
@@ -367,16 +417,22 @@ const tools: ToolDefinition[] = [
     h1: 'Convert images to PDF',
     tagline: 'Combine JPG and PNG images into one PDF with your chosen page setup.',
     description:
-      'Turn JPG and PNG images into a single multi-page PDF. Choose page size, orientation, and margins, reorder images, and download — processed locally.',
+      'Turn JPG and PNG images into a single multi-page PDF. Choose page size, orientation, margins, and an optional filter, reorder images, and download — processed locally.',
     category: 'convert',
     icon: 'Images',
-    keywords: ['jpg to pdf', 'image to pdf', 'png to pdf', 'convert images to pdf'],
+    keywords: [
+      'jpg to pdf',
+      'image to pdf',
+      'png to pdf',
+      'convert images to pdf',
+      'grayscale images to pdf',
+    ],
     accept: MULTI_IMAGE_ACCEPT,
     multiple: true,
     related: ['pdf-to-jpg', 'merge-pdf', 'compress-pdf'],
     howTo: [
       'Drop one or more JPG or PNG images, or click to browse.',
-      'Reorder them and choose page size, orientation, and margins.',
+      'Reorder them and choose page size, orientation, margins, and an optional filter.',
       'Press “Create PDF” and download the multi-page document.',
     ],
     limitations: [
@@ -525,6 +581,7 @@ const tools: ToolDefinition[] = [
       'This tool adds new text and images on top of the page; it does not replace or remove existing content.',
       'Fonts are limited to the standard PDF fonts available through pdf-lib.',
       'Encrypted or password-protected PDFs must be unlocked before editing.',
+      'Applying a filter flattens the filtered pages into images, so text on those pages is no longer selectable. Pages left on “Original” keep their text.',
     ],
     faqs: [
       {
@@ -538,6 +595,10 @@ const tools: ToolDefinition[] = [
       {
         q: 'Are my files uploaded to a server?',
         a: 'No. All editing happens entirely in your browser — your PDF never leaves your device.',
+      },
+      {
+        q: 'Do page filters remove my text?',
+        a: 'Filtered pages are flattened into images so the style can be applied, which means their text is no longer selectable. Pages left on “Original” are exported with their text intact.',
       },
     ],
     status: 'implemented',

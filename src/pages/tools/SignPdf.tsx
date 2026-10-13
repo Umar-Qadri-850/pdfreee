@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { Eraser, ImagePlus, PenTool, Trash2 } from 'lucide-react'
 import { ToolShell } from '@/components/tools/ToolShell'
 import { FileDropzone } from '@/components/tools/FileDropzone'
+import { FilenameField } from '@/components/tools/FilenameField'
 import { PageCanvas, type PlacedImage } from '@/components/tools/PageCanvas'
 import { usePdfPagePreviews } from '@/components/tools/usePdfPagePreviews'
 import { useAsyncTask } from '@/components/tools/useAsyncTask'
 import { useSinglePdfFile } from '@/components/tools/useSinglePdfFile'
+import { useOutputFileName } from '@/components/tools/useOutputFileName'
 import { Alert, Button, Field, ProgressBar, Spinner } from '@/components/ui'
 import { getTool } from '@/content/registry'
 import { downloadBytes, safeBaseName } from '@/lib/utils'
@@ -42,6 +44,7 @@ export default function SignPdf() {
   const { file, pageCount, loading, error, select, clear } = useSinglePdfFile()
   const { previews, status: previewStatus, error: previewError } = usePdfPagePreviews(file)
   const task = useAsyncTask()
+  const out = useOutputFileName(file ? `${safeBaseName(file.name)}-signed` : 'signed', 'pdf')
 
   const [signature, setSignature] = useState<SignatureMeta | null>(null)
   const [signatureError, setSignatureError] = useState<string | null>(null)
@@ -209,8 +212,8 @@ export default function SignPdf() {
         onProgress((i + 1) / placements.length, `Placed signature ${i + 1} of ${placements.length}`)
       }
 
-      const out = await pdfDoc.save()
-      downloadBytes(new Uint8Array(out), `${safeBaseName(file.name)}-signed.pdf`)
+      const saved = await pdfDoc.save()
+      downloadBytes(new Uint8Array(saved), out.fileName)
     })
 
   return (
@@ -357,6 +360,15 @@ export default function SignPdf() {
                 </ul>
               </div>
             ) : null}
+
+            <div className="max-w-md">
+              <FilenameField
+                base={out.base}
+                extension="pdf"
+                onChange={out.setBase}
+                id="sign-output-name"
+              />
+            </div>
 
             <div className="flex flex-wrap items-center gap-3">
               <Button onClick={runExport} disabled={task.status === 'running' || placements.length === 0}>

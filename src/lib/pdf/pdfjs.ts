@@ -48,10 +48,12 @@ export interface RenderOptions {
   type?: 'image/jpeg' | 'image/png' | 'image/webp'
   quality?: number
   signal?: AbortSignal
+  /** Runs against the rendered canvas before encoding — used for pixel filters. */
+  transform?: (context: CanvasRenderingContext2D, width: number, height: number) => void
 }
 
 export async function renderPageToBlob(page: PdfJsPage, options: RenderOptions = {}): Promise<RenderedPage> {
-  const { scale = 2, type = 'image/png', quality = 0.92, signal } = options
+  const { scale = 2, type = 'image/png', quality = 0.92, signal, transform } = options
   if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
 
   const viewport = page.getViewport({ scale })
@@ -79,6 +81,8 @@ export async function renderPageToBlob(page: PdfJsPage, options: RenderOptions =
   } finally {
     signal?.removeEventListener('abort', onAbort)
   }
+
+  transform?.(ctx, canvas.width, canvas.height)
 
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, type, type === 'image/png' ? undefined : quality),
