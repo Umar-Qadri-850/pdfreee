@@ -1,10 +1,19 @@
 import { Link } from 'react-router'
 import { ContentPage } from '@/components/layout/ContentPage'
+import { ConsentSettingsButton } from '@/components/consent/ConsentSettingsButton'
+import { useConsent } from '@/components/consent/useConsent'
 import { ADSENSE } from '@/lib/ads'
 import { SITE } from '@/lib/site'
 
 export function CookiePolicy() {
   const adsOn = ADSENSE.enabled
+  const consent = useConsent()
+  const cookieChoice =
+    consent === null
+      ? 'not chosen yet'
+      : consent.advertising
+        ? 'allowed optional advertising storage'
+        : 'rejected optional advertising storage'
   return (
     <ContentPage
       title="Cookie policy"
@@ -20,7 +29,16 @@ export function CookiePolicy() {
           Advertising is <strong>{adsOn ? 'enabled by the site operator' : 'disabled'}</strong> in
           this configuration.
         </li>
+        <li>
+          Your stored choice: <strong>{cookieChoice}</strong>.
+        </li>
       </ul>
+      <p>
+        You can change your choice at any time.
+      </p>
+      <p>
+        <ConsentSettingsButton />
+      </p>
 
       <h2>Strictly necessary storage</h2>
       <p>

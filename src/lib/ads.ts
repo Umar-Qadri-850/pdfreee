@@ -1,3 +1,5 @@
+import { hasAdConsent } from './consent'
+
 /**
  * Optional AdSense configuration.
  *
@@ -27,6 +29,8 @@ let scriptLoaded = false
 export function loadAdsenseScript(): void {
   if (scriptLoaded || typeof document === 'undefined') return
   if (!/^ca-pub-\d{10,}$/.test(ADSENSE.client)) return
+  // Never load ad scripts without explicit advertising consent.
+  if (!hasAdConsent()) return
   scriptLoaded = true
   const s = document.createElement('script')
   s.async = true
