@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { Download, RotateCcw } from 'lucide-react'
 import { ToolShell } from '@/components/tools/ToolShell'
 import { FileDropzone } from '@/components/tools/FileDropzone'
+import { FilenameField } from '@/components/tools/FilenameField'
 import { useAsyncTask } from '@/components/tools/useAsyncTask'
 import { useSinglePdfFile } from '@/components/tools/useSinglePdfFile'
+import { useOutputFileName } from '@/components/tools/useOutputFileName'
 import { Alert, Button, Field, ProgressBar, Spinner } from '@/components/ui'
 import { getTool } from '@/content/registry'
 import { downloadBlob, formatBytes, safeBaseName } from '@/lib/utils'
@@ -26,6 +28,8 @@ export default function PdfToJpg() {
   const [range, setRange] = useState('')
   const [images, setImages] = useState<OutImage[]>([])
   const task = useAsyncTask()
+  const ext = format === 'image/png' ? 'png' : 'jpg'
+  const out = useOutputFileName(file ? safeBaseName(file.name) : 'pages', ext)
 
   useEffect(() => {
     setImages([])
@@ -63,8 +67,7 @@ export default function PdfToJpg() {
       )
     })
 
-  const ext = format === 'image/png' ? 'png' : 'jpg'
-  const base = file ? safeBaseName(file.name) : 'pages'
+  const base = out.stem
 
   return (
     <ToolShell tool={tool}>
@@ -140,6 +143,15 @@ export default function PdfToJpg() {
 
             {images.length > 0 ? (
               <div className="space-y-4">
+                <div className="max-w-md">
+                  <FilenameField
+                    base={out.base}
+                    extension={ext}
+                    onChange={out.setBase}
+                    id="pdf-to-jpg-output-name"
+                    hint="Used as the prefix for each image and the ZIP file."
+                  />
+                </div>
                 <div className="flex flex-wrap items-center gap-3">
                   <p className="text-sm text-ink-soft">
                     {images.length} image{images.length === 1 ? '' : 's'} ready ·{' '}

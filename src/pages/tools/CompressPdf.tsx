@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { Download, RotateCcw } from 'lucide-react'
 import { ToolShell } from '@/components/tools/ToolShell'
 import { FileDropzone } from '@/components/tools/FileDropzone'
+import { FilenameField } from '@/components/tools/FilenameField'
 import { useAsyncTask } from '@/components/tools/useAsyncTask'
 import { useSinglePdfFile } from '@/components/tools/useSinglePdfFile'
+import { useOutputFileName } from '@/components/tools/useOutputFileName'
 import { Alert, Button, Field, ProgressBar, Spinner } from '@/components/ui'
 import { getTool } from '@/content/registry'
 import { downloadBytes, formatBytes, percent, safeBaseName } from '@/lib/utils'
@@ -27,6 +29,7 @@ export default function CompressPdf() {
   const [quality, setQuality] = useState(0.6)
   const [result, setResult] = useState<CompressResult | null>(null)
   const task = useAsyncTask()
+  const out = useOutputFileName(file ? `${safeBaseName(file.name)}-compressed` : 'compressed', 'pdf')
 
   useEffect(() => {
     setResult(null)
@@ -165,10 +168,18 @@ export default function CompressPdf() {
                   </p>
                 ) : null}
 
+                <div className="mt-3">
+                  <FilenameField
+                    base={out.base}
+                    extension="pdf"
+                    onChange={out.setBase}
+                    id="compress-output-name"
+                  />
+                </div>
                 <div className="mt-3 flex flex-wrap gap-3">
                   <Button
                     variant={smaller ? 'primary' : 'secondary'}
-                    onClick={() => downloadBytes(result.bytes, `${safeBaseName(file.name)}-compressed.pdf`)}
+                    onClick={() => downloadBytes(result.bytes, out.fileName)}
                   >
                     <Download className="h-4 w-4" />{' '}
                     {smaller ? 'Download compressed PDF' : 'Download rebuilt copy anyway'}

@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { Copy, Download, RotateCcw } from 'lucide-react'
 import { ToolShell } from '@/components/tools/ToolShell'
 import { FileDropzone } from '@/components/tools/FileDropzone'
+import { FilenameField } from '@/components/tools/FilenameField'
 import { useAsyncTask } from '@/components/tools/useAsyncTask'
 import { useSinglePdfFile } from '@/components/tools/useSinglePdfFile'
+import { useOutputFileName } from '@/components/tools/useOutputFileName'
 import { Alert, Button, Field, ProgressBar, Spinner } from '@/components/ui'
 import { getTool } from '@/content/registry'
 import { downloadBlob, formatBytes, safeBaseName } from '@/lib/utils'
@@ -17,6 +19,7 @@ export default function PdfToText() {
   const [result, setResult] = useState<ExtractTextResult | null>(null)
   const [copied, setCopied] = useState(false)
   const task = useAsyncTask()
+  const out = useOutputFileName(file ? safeBaseName(file.name) : 'document', 'txt')
 
   useEffect(() => {
     setResult(null)
@@ -102,6 +105,15 @@ export default function PdfToText() {
                   </p>
                 )}
 
+                <div className="max-w-md">
+                  <FilenameField
+                    base={out.base}
+                    extension="txt"
+                    onChange={out.setBase}
+                    id="pdf-to-text-output-name"
+                  />
+                </div>
+
                 <div className="flex flex-wrap gap-3">
                   <Button onClick={copy} disabled={result.characters === 0}>
                     <Copy className="h-4 w-4" /> {copied ? 'Copied!' : 'Copy all text'}
@@ -112,7 +124,7 @@ export default function PdfToText() {
                     onClick={() =>
                       downloadBlob(
                         new Blob([result.full], { type: 'text/plain;charset=utf-8' }),
-                        `${safeBaseName(file.name)}.txt`,
+                        out.fileName,
                       )
                     }
                   >
