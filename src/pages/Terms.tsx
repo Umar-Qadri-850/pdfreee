@@ -10,6 +10,7 @@ export function Terms() {
       description="The terms governing your use of the Pdfreee online PDF toolkit, including acceptable use and limitations of liability."
       path="/terms"
       intro="These terms describe the agreement between you and Pdfreee when you use the site. Please read them before relying on the tools for anything important."
+      updated={SITE.legalUpdated}
     >
       <h2>Acceptance</h2>
       <p>By using {SITE.name}, you agree to these terms. If you do not agree, please do not use the site.</p>

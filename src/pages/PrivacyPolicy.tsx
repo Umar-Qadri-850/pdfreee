@@ -10,6 +10,7 @@ export function PrivacyPolicy() {
       description="How Pdfreee handles your documents and data. The core tools process files locally in your browser, so your documents are never uploaded."
       path="/privacy-policy"
       intro="Plain-language summary: the core PDF tools run in your browser and do not upload your documents. This page explains the details and any exceptions."
+      updated={SITE.legalUpdated}
     >
       <h2>The short version</h2>
       <ul>
@@ -56,9 +57,15 @@ export function PrivacyPolicy() {
 
       <h2>Cookies and local storage</h2>
       <p>
-        The core toolkit does not require cookies to function. See the{' '}
-        <Link to="/cookie-policy">cookie policy</Link> for the current, honest state of cookie and
-        storage usage.
+        The core toolkit does not require cookies to function. The only persistent storage the
+        application itself writes is your cookie choice, saved locally in your browser under the key
+        <code> pdfreee.consent</code>. It contains a version number, the date you chose, and whether
+        you allowed optional advertising storage — nothing else. You can change or clear it at any
+        time using the “Cookie settings” control in the footer, or by clearing your browser storage.
+      </p>
+      <p>
+        See the <Link to="/cookie-policy">cookie policy</Link> for the current, honest state of
+        cookie and storage usage.
       </p>
 
       <h2>Third parties</h2>
