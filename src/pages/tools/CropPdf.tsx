@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Download, RotateCcw } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Download, RotateCcw } from 'lucide-react'
 import { ToolShell } from '@/components/tools/ToolShell'
 import { FileDropzone } from '@/components/tools/FileDropzone'
 import { FilenameField } from '@/components/tools/FilenameField'
 import { PageGrid } from '@/components/tools/PageGrid'
+import { CropCanvas } from '@/components/tools/CropCanvas'
+import { usePdfPagePreview } from '@/components/tools/usePdfPagePreview'
 import { useAsyncTask } from '@/components/tools/useAsyncTask'
 import { useSinglePdfFile } from '@/components/tools/useSinglePdfFile'
 import { usePdfSelection } from '@/components/tools/usePdfSelection'
@@ -12,10 +14,12 @@ import { Alert, Button, Field, ProgressBar, Spinner } from '@/components/ui'
 import { getTool } from '@/content/registry'
 import { downloadBytes, formatBytes, safeBaseName } from '@/lib/utils'
 import { uniqueSorted } from '@/lib/pdf/range'
+import type { CropMargins } from '@/lib/pdf/crop-selection'
 
 const tool = getTool('crop-pdf')!
 
 const MAX_PERCENT = 45
+const MAX_FRACTION = MAX_PERCENT / 100
 
 interface Margins {
   top: number
@@ -32,19 +36,26 @@ function clampPercent(value: string): number {
   return Math.min(MAX_PERCENT, n)
 }
 
+function toPercent(fraction: number): number {
+  return Math.round(fraction * 1000) / 10
+}
+
 export default function CropPdf() {
   const { file, pageCount, loading, error, select, clear } = useSinglePdfFile()
   const selection = usePdfSelection(pageCount)
   const [margins, setMargins] = useState<Margins>(EMPTY)
   const [allPages, setAllPages] = useState(true)
+  const [activePage, setActivePage] = useState(1)
   const [result, setResult] = useState<Uint8Array | null>(null)
   const task = useAsyncTask()
   const out = useOutputFileName(file ? `${safeBaseName(file.name)}-cropped` : 'cropped', 'pdf')
+  const previewState = usePdfPagePreview(file, activePage)
 
   useEffect(() => {
     selection.clear()
     setMargins(EMPTY)
     setAllPages(true)
+    setActivePage(1)
     setResult(null)
     task.reset()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,6 +92,16 @@ export default function CropPdf() {
   const setMargin = (edge: keyof Margins, value: string) =>
     setMargins((prev) => ({ ...prev, [edge]: clampPercent(value) }))
 
+  const onCanvasMargins = (fractions: CropMargins) =>
+    setMargins({
+      top: toPercent(fractions.top),
+      right: toPercent(fractions.right),
+      bottom: toPercent(fractions.bottom),
+      left: toPercent(fractions.left),
+    })
+
+  const resetCrop = () => setMargins(EMPTY)
+
   return (
     <ToolShell tool={tool}>
       <div className="space-y-6">
@@ -95,6 +116,66 @@ export default function CropPdf() {
 
         {file && pageCount > 0 ? (
           <div className="space-y-5">
+            <div className="space-y-3 rounded-lg border border-line bg-surface p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm font-medium">Drag the crop box, or type margins below</p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="subtle"
+                    size="sm"
+                    type="button"
+                    disabled={activePage <= 1}
+                    onClick={() => setActivePage((p) => Math.max(1, p - 1))}
+                    aria-label="Previous page preview"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <span className="text-sm text-ink-soft">
+                    Page {activePage} of {pageCount}
+                  </span>
+                  <Button
+                    variant="subtle"
+                    size="sm"
+                    type="button"
+                    disabled={activePage >= pageCount}
+                    onClick={() => setActivePage((p) => Math.min(pageCount, p + 1))}
+                    aria-label="Next page preview"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" type="button" onClick={resetCrop}>
+                    <RotateCcw className="h-4 w-4" /> Reset
+                  </Button>
+                </div>
+              </div>
+
+              {previewState.status === 'running' ? (
+                <p className="inline-flex items-center gap-2 text-sm text-ink-muted">
+                  <Spinner /> Rendering page preview…
+                </p>
+              ) : null}
+              {previewState.error ? <Alert tone="error">{previewState.error}</Alert> : null}
+              {previewState.preview ? (
+                <div className="overflow-x-auto">
+                  <CropCanvas
+                    preview={previewState.preview}
+                    margins={{
+                      top: margins.top / 100,
+                      right: margins.right / 100,
+                      bottom: margins.bottom / 100,
+                      left: margins.left / 100,
+                    }}
+                    maxMargin={MAX_FRACTION}
+                    onChange={onCanvasMargins}
+                  />
+                </div>
+              ) : null}
+              <p className="text-xs text-ink-muted">
+                The same margins are applied to every cropped page, keeping each page&apos;s
+                proportions intact.
+              </p>
+            </div>
+
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               {(['top', 'right', 'bottom', 'left'] as const).map((edge) => (
                 <Field key={edge} label={`${edge[0].toUpperCase()}${edge.slice(1)} %`} htmlFor={`crop-${edge}`}>

@@ -296,7 +296,7 @@ const tools: ToolDefinition[] = [
     h1: 'Crop PDF pages',
     tagline: 'Trim white space or margins from your pages and download a tighter PDF.',
     description:
-      'Crop a PDF by trimming margins from the top, bottom, left, and right of every page. Preview your pages, set the crop as a percentage, and download — all in your browser.',
+      'Crop a PDF by trimming margins from the top, bottom, left, and right of every page. Drag the crop box on a live preview or type exact percentages, then download — all in your browser.',
     category: 'organize',
     icon: 'Crop',
     keywords: ['crop pdf', 'trim pdf margins', 'cut pdf pages', 'remove white space pdf', 'pdf cropper'],
@@ -305,7 +305,7 @@ const tools: ToolDefinition[] = [
     related: ['rotate-pdf', 'pdf-to-jpg', 'reorder-pdf-pages'],
     howTo: [
       'Add the PDF you want to crop.',
-      'Set how much to trim from each edge, as a percentage of the page.',
+      'Drag the crop box on the preview to set the region, or type a percentage for each edge.',
       'Choose all pages or a selection, then press “Crop PDF” and download the result.',
     ],
     limitations: [
@@ -581,6 +581,7 @@ const tools: ToolDefinition[] = [
       'This tool adds new text and images on top of the page; it does not replace or remove existing content.',
       'Fonts are limited to the standard PDF fonts available through pdf-lib.',
       'Encrypted or password-protected PDFs must be unlocked before editing.',
+      'Applying a filter flattens the filtered pages into images, so text on those pages is no longer selectable. Pages left on “Original” keep their text.',
     ],
     faqs: [
       {
@@ -594,6 +595,10 @@ const tools: ToolDefinition[] = [
       {
         q: 'Are my files uploaded to a server?',
         a: 'No. All editing happens entirely in your browser — your PDF never leaves your device.',
+      },
+      {
+        q: 'Do page filters remove my text?',
+        a: 'Filtered pages are flattened into images so the style can be applied, which means their text is no longer selectable. Pages left on “Original” are exported with their text intact.',
       },
     ],
     status: 'implemented',

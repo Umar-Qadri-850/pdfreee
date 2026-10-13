@@ -31,6 +31,12 @@ export function previewPointToPdf(transform: Transform, px: number, py: number):
   }
 }
 
+/** Map a point from PDF points (bottom-left origin) to preview pixels (top-left origin). */
+export function pdfPointToPreview(transform: Transform, x: number, y: number): Point {
+  const [a, b, c, d, e, f] = transform
+  return { x: a * x + c * y + e, y: b * x + d * y + f }
+}
+
 /** Angle (radians) in PDF space of the preview's +x axis, used to keep media upright on rotated pages. */
 export function previewAngle(transform: Transform, px: number, py: number): number {
   const origin = previewPointToPdf(transform, px, py)

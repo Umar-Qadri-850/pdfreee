@@ -69,6 +69,20 @@ describe('filterPixels', () => {
     expect([data[0], data[1], data[2]]).toEqual([255, 255, 255])
   })
 
+  it('warms by lifting red and lowering blue', () => {
+    const data = px(128, 128, 128, 255)
+    filterPixels(data, 'warm')
+    expect(data[0]).toBeGreaterThan(128)
+    expect(data[2]).toBeLessThan(128)
+  })
+
+  it('cools by lifting blue and lowering red', () => {
+    const data = px(128, 128, 128, 255)
+    filterPixels(data, 'cool')
+    expect(data[2]).toBeGreaterThan(128)
+    expect(data[0]).toBeLessThan(128)
+  })
+
   it('applies the sepia matrix', () => {
     const data = px(0, 0, 0, 255)
     filterPixels(data, 'sepia')

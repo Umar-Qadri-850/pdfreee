@@ -11,6 +11,8 @@ export type FilterId =
   | 'none'
   | 'grayscale'
   | 'blackwhite'
+  | 'warm'
+  | 'cool'
   | 'sepia'
   | 'invert'
   | 'brighten'
@@ -24,16 +26,18 @@ export interface FilterPreset {
 
 export const FILTER_PRESETS: FilterPreset[] = [
   { id: 'none', label: 'Original', description: 'No filter — the page is rendered as-is.' },
-  { id: 'grayscale', label: 'Grayscale', description: 'Uniform grey tones, useful for photos.' },
   {
     id: 'blackwhite',
-    label: 'Black & white',
+    label: 'Black & White',
     description: 'High-contrast threshold, good for crisp scans and documents.',
   },
-  { id: 'sepia', label: 'Sepia', description: 'Warm, aged-paper tone.' },
-  { id: 'invert', label: 'Invert', description: 'Swaps light and dark — handy for dark-mode reads.' },
+  { id: 'grayscale', label: 'Grayscale', description: 'Uniform grey tones, useful for photos.' },
+  { id: 'warm', label: 'Warm', description: 'Adds a golden, sunny cast for a cosier feel.' },
+  { id: 'cool', label: 'Cool', description: 'Adds a blue, icy cast for a crisp modern look.' },
+  { id: 'sepia', label: 'Sepia', description: 'Classic aged-paper tone.' },
+  { id: 'contrast', label: 'High Contrast', description: 'Deepens darks and lightens lights.' },
+  { id: 'invert', label: 'Inverted', description: 'Swaps light and dark — handy for dark-mode reads.' },
   { id: 'brighten', label: 'Brighten', description: 'Lifts shadows in an under-exposed scan.' },
-  { id: 'contrast', label: 'High contrast', description: 'Deepens darks and lightens lights.' },
 ]
 
 export function isFilterId(value: string): value is FilterId {
@@ -70,6 +74,18 @@ export function filterPixels(data: Uint8ClampedArray, preset: FilterId): void {
         data[i] = y
         data[i + 1] = y
         data[i + 2] = y
+        break
+      }
+      case 'warm': {
+        data[i] = r + 18
+        data[i + 1] = g + 6
+        data[i + 2] = b - 12
+        break
+      }
+      case 'cool': {
+        data[i] = r - 12
+        data[i + 1] = g + 4
+        data[i + 2] = b + 18
         break
       }
       case 'sepia': {
